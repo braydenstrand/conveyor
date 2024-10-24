@@ -9,6 +9,7 @@ public class MeshDrawer : MonoBehaviour
     private MeshFilter meshFilter;
     private List<Vector3> vertices = new();
     private List<int> triangles = new();
+    private int conveyorEndVerticesIndex;
 
     [SerializeField] private Vector3 startingPos;
     [SerializeField] private float initialLength;
@@ -38,7 +39,8 @@ public class MeshDrawer : MonoBehaviour
         mesh = new Mesh();
         meshFilter = GetComponent<MeshFilter>();
         meshFilter.mesh = mesh;
-        InitializeBuidTool();
+        //InitializeBuidTool();
+        DrawTest();
     }
 
     void Update()
@@ -49,26 +51,120 @@ public class MeshDrawer : MonoBehaviour
     public void InitializeBuidTool()
     {
         Debug.Log("Initializing Build Tool");
-        //DrawEndOfConveyor(new Vector3(startingPos.x, startingPos.y + poleHeight, startingPos.z - (initialLength / 2)), transform.forward);
+        DrawEndOfConveyor(new Vector3(startingPos.x, startingPos.y + poleHeight, startingPos.z - (initialLength / 2)), transform.forward);
         DrawEndOfConveyor(new Vector3(startingPos.x, startingPos.y + poleHeight, startingPos.z + (initialLength / 2)), -transform.forward);
+        DrawInBetweenEnds();
         DrawConveyorPole(startingPos);
+
+        SetUVCoordinates();
     }
 
     void UpdateMesh()
     {
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
-        mesh.RecalculateNormals();
+        RecalculateFlatNormals(mesh);
+
     }
+
+    void DrawTest()
+    {
+        List<Vector3> newVertices = new();
+        List<int> newTriangles = new();
+        List<Vector2> newUvs = new();
+
+        Vector3 edgeBottom = new(0, 0, 0);
+        Vector3 edgeTop = new(0, 1, 0);
+        newVertices.Add(edgeBottom); // 0
+        newVertices.Add(edgeTop); // 1
+        newVertices.Add(edgeBottom); // 2
+        newVertices.Add(edgeTop); // 3
+        newVertices.Add(new Vector3(1, 0, 0)); // 4
+        newVertices.Add(new Vector3(1, 1, 0)); // 5
+        newVertices.Add(new Vector3(0, 0, 1)); // 6
+        newVertices.Add(new Vector3(0, 1, 1)); // 7
+
+        newTriangles.Add(0);
+        newTriangles.Add(1);
+        newTriangles.Add(5);
+
+        newTriangles.Add(0);
+        newTriangles.Add(5);
+        newTriangles.Add(4);
+
+        newTriangles.Add(6);
+        newTriangles.Add(7);
+        newTriangles.Add(3);
+
+        newTriangles.Add(6);
+        newTriangles.Add(3);
+        newTriangles.Add(2);
+
+        vertices.AddRange(newVertices);
+        triangles.AddRange(newTriangles);
+
+        UpdateMesh();
+
+    }
+
+    void SetUVCoordinates()
+    {
+        Vector2[] UVs = new Vector2[mesh.vertices.Length];
+
+        UVs[0] = new Vector2(0, 0);
+        UVs[1] = new Vector2(0, 1);
+        UVs[6] = new Vector2(1, 1);
+        UVs[7] = new Vector2(1, 0);
+
+        mesh.uv = UVs;
+
+        Debug.Log(mesh.uv[0]);
+        Debug.Log(mesh.uv[1]);
+        Debug.Log(mesh.uv[6]);
+        Debug.Log(mesh.uv[7]);
+        Debug.Log(mesh.vertices[0]);
+        Debug.Log(mesh.vertices[1]);
+        Debug.Log(mesh.vertices[6]);
+        Debug.Log(mesh.vertices[7]);
+    }
+
+    void RecalculateFlatNormals(Mesh mesh)
+    {
+        Vector3[] vertices = mesh.vertices;
+        int[] triangles = mesh.triangles;
+        Vector3[] normals = new Vector3[vertices.Length];
+
+        for (int i = 0; i < triangles.Length; i += 3)
+        {
+            // Get the vertices of the triangle
+            Vector3 v0 = vertices[triangles[i]];
+            Vector3 v1 = vertices[triangles[i + 1]];
+            Vector3 v2 = vertices[triangles[i + 2]];
+
+            // Calculate the face normal
+            Vector3 normal = Vector3.Cross(v1 - v0, v2 - v0).normalized;
+
+            // Assign the same normal to all three vertices (flat shading)
+            normals[triangles[i]] = normal;
+            normals[triangles[i + 1]] = normal;
+            normals[triangles[i + 2]] = normal;
+        }
+
+        // Apply the new normals to the mesh
+        mesh.normals = normals;
+    }
+
 
     void DrawEndOfConveyor(Vector3 startingPos, Vector3 direction)
     {
         List<Vector3> newVertices = new();
         List<int> newTriangles = new();
+        int currentVerticesLength = vertices.Count;
+        conveyorEndVerticesIndex = vertices.Count;
+
 
         Vector3 right = Vector3.Cross(Vector3.up, direction).normalized;
         Quaternion rotation = Quaternion.LookRotation(direction);
-
 
         newVertices.Add(startingPos + new Vector3(-width / 2, 0, 0)); // 0
         newVertices.Add(startingPos + new Vector3(-width / 2, height, 0)); // 1
@@ -83,32 +179,34 @@ public class MeshDrawer : MonoBehaviour
 
         for (int i = 0; i < newVertices.Count; i++)
         {
-            newVertices[i] = rotation * newVertices[i] + startingPos; // Rotate and translate
+            newVertices[i] = newVertices[i] - startingPos;
+
+            newVertices[i] = rotation * newVertices[i] + startingPos;
         }
 
-        newTriangles.Add(0);
-        newTriangles.Add(1);
-        newTriangles.Add(9);
+        newTriangles.Add(currentVerticesLength + 0);
+        newTriangles.Add(currentVerticesLength + 1);
+        newTriangles.Add(currentVerticesLength + 9);
 
-        newTriangles.Add(1);
-        newTriangles.Add(2);
-        newTriangles.Add(9);
+        newTriangles.Add(currentVerticesLength + 1);
+        newTriangles.Add(currentVerticesLength + 2);
+        newTriangles.Add(currentVerticesLength + 9);
 
-        newTriangles.Add(9);
-        newTriangles.Add(3);
-        newTriangles.Add(8);
+        newTriangles.Add(currentVerticesLength + 9);
+        newTriangles.Add(currentVerticesLength + 3);
+        newTriangles.Add(currentVerticesLength + 8);
 
-        newTriangles.Add(3);
-        newTriangles.Add(4);
-        newTriangles.Add(8);
+        newTriangles.Add(currentVerticesLength + 3);
+        newTriangles.Add(currentVerticesLength + 4);
+        newTriangles.Add(currentVerticesLength + 8);
 
-        newTriangles.Add(8);
-        newTriangles.Add(5);
-        newTriangles.Add(6);
+        newTriangles.Add(currentVerticesLength + 8);
+        newTriangles.Add(currentVerticesLength + 5);
+        newTriangles.Add(currentVerticesLength + 6);
 
-        newTriangles.Add(8);
-        newTriangles.Add(6);
-        newTriangles.Add(7);
+        newTriangles.Add(currentVerticesLength + 8);
+        newTriangles.Add(currentVerticesLength + 6);
+        newTriangles.Add(currentVerticesLength + 7);
 
 
         vertices.AddRange(newVertices);
@@ -118,6 +216,81 @@ public class MeshDrawer : MonoBehaviour
         UpdateMesh();
 
         
+    }
+
+    void DrawInBetweenEnds()
+    {
+        List<int> newTriangles = new()
+        {
+            conveyorEndVerticesIndex + 7,
+            conveyorEndVerticesIndex + 6,
+            0,
+
+            conveyorEndVerticesIndex + 6,
+            1,
+            0,
+
+            conveyorEndVerticesIndex + 6,
+            conveyorEndVerticesIndex + 5,
+            1,
+
+            conveyorEndVerticesIndex + 5,
+            2,
+            1,
+
+            3,
+            2,
+            conveyorEndVerticesIndex + 5,
+
+            3,
+            conveyorEndVerticesIndex + 5,
+            conveyorEndVerticesIndex + 4,
+
+            conveyorEndVerticesIndex + 3,
+            conveyorEndVerticesIndex + 2,
+            4,
+
+            conveyorEndVerticesIndex + 4,
+            conveyorEndVerticesIndex + 3,
+            4,
+
+            conveyorEndVerticesIndex + 4,
+            4,
+            3,
+
+            conveyorEndVerticesIndex + 2,
+            5,
+            4,
+
+            conveyorEndVerticesIndex + 2,
+            conveyorEndVerticesIndex + 1,
+            5,
+
+            conveyorEndVerticesIndex + 1,
+            6,
+            5,
+
+            7,
+            6,
+            conveyorEndVerticesIndex + 0,
+
+            6,
+            conveyorEndVerticesIndex + 1,
+            conveyorEndVerticesIndex + 0,
+
+            conveyorEndVerticesIndex + 0,
+            conveyorEndVerticesIndex + 7,
+            7,
+
+            conveyorEndVerticesIndex + 7,
+            0,
+            7
+
+        };
+
+        triangles.AddRange(newTriangles);
+
+        UpdateMesh();
     }
 
     void DrawConveyorPole(Vector3 startingPos)
