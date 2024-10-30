@@ -108,6 +108,19 @@ public class PlayerInput : MonoBehaviour
         
     }
 
+    public bool RightClickWasPressed()
+    {
+        if (!isPlayerDead)
+        {
+            return Input.GetButtonDown("Fire2");
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+
     public bool Weapon1Pressed()
     {
         if (!isPlayerDead)
