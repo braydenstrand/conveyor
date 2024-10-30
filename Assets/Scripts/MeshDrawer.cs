@@ -12,6 +12,7 @@ public class MeshDrawer : MonoBehaviour
     private Vector2[] uvs;
     private int conveyorEndVerticesIndex;
 
+    public MeshTemplate template;
     
 
     public bool draw;

@@ -15,9 +15,9 @@ public class CalculateVertexLocations : MonoBehaviour
         buildTool = FindObjectOfType<PlayerBuildTool>();
     }
 
-    public void Calculate(float width, float height, float postWidth, float postHeight, float poleWidth, float poleHeight, float poleDepth)
+    public void Calculate(Vector3 endPos)
     {
-        startingPos = buildTool.GetRaycastHitPoint();
+        
     }
 
     void CalculateCap(float width, float height, float postWidth, float postHeight)

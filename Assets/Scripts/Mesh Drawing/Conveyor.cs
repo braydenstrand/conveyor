@@ -8,24 +8,20 @@ using UnityEngine;
 
 public class Conveyor : MonoBehaviour
 {
-    [SerializeField] float initialLength;
+    GameObject frontFace;
+    GameObject backFace;
 
-    [Header("Conveyor Dimensions")]
-    [SerializeField] float width;
-    [SerializeField] float height;
-    [SerializeField] float postWidth;
-    [SerializeField] float postHeight;
-
-    [Header("Pole Dimensions")]
-    [SerializeField] float poleWidth;
-    [SerializeField] float poleHeight;
-    [SerializeField] float poleDepth;
+    List<QuadVectors> frontFaceQuads = new();
+    List<QuadVectors> backFaceQuads = new();
+    List<QuadVectors> otherQuads = new();
 
     Mesh beltMesh;
     Mesh frameMesh;
 
     CalculateVertexLocations vertexCalculator;
     MeshDrawer meshDrawer;
+    MeshTemplate template;
+    PlayerBuildTool playerBuildTool;
 
     private void Start()
     {
@@ -33,7 +29,14 @@ public class Conveyor : MonoBehaviour
         frameMesh = new Mesh();
 
         vertexCalculator = GetComponent<CalculateVertexLocations>();
-        vertexCalculator.Calculate(width, height, postWidth, postHeight, poleWidth, poleHeight, poleDepth);
         meshDrawer = GetComponent<MeshDrawer>();
+        template = GetComponent<MeshTemplate>();
+        meshDrawer.template = template;
+        playerBuildTool = GetComponent<PlayerBuildTool>();
+    }
+
+    private void Update()
+    {
+       // vertexCalculator.Calculate(playerBuildTool.GetRaycastHitPoint)
     }
 }

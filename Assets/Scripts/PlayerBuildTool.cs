@@ -12,6 +12,8 @@ public class PlayerBuildTool : MonoBehaviour
 
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float maxInteractionDistance;
+
+    bool startPointPlaced;
     CalculateConveyorCurve curveCalc;
 
     void Start()
@@ -28,21 +30,23 @@ public class PlayerBuildTool : MonoBehaviour
             meshDrawer.draw = true;
         }
 
-        if (isHitting && hit.point.z > 0)
+        if (isHitting && !startPointPlaced)
         {
-            meshDrawer.length = hit.point.z;
+            
             
         }
+        
 
         if (PlayerInput.Instance.RightClickWasPressed() && isHitting)
         {
-            if (curveCalc.startCubePlaced)
+            if (startPointPlaced)
             {
-                curveCalc.Calculate(hit.point);
+                // place end point
             }
             else
             {
-                curveCalc.PlaceFirstCube(hit.point);
+                // place start point
+                startPointPlaced = true;
             }
         }
     }
