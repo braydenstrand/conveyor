@@ -8,12 +8,12 @@ using UnityEngine;
 
 public class Conveyor : MonoBehaviour
 {
-    GameObject frontFace;
-    GameObject backFace;
+    [HideInInspector] public GameObject frontFace;
+    [HideInInspector] public GameObject backFace;
 
-    List<QuadVectors> frontFaceQuads = new();
-    List<QuadVectors> backFaceQuads = new();
-    List<QuadVectors> otherQuads = new();
+    [HideInInspector] public List<QuadVectors> frontFaceQuads = new();
+    [HideInInspector] public List<QuadVectors> backFaceQuads = new();
+    [HideInInspector] public List<QuadVectors> otherQuads = new();
 
     Mesh beltMesh;
     Mesh frameMesh;
@@ -23,20 +23,49 @@ public class Conveyor : MonoBehaviour
     MeshTemplate template;
     PlayerBuildTool playerBuildTool;
 
+    [SerializeField] GameObject conveyorTemplateObject;
+
     private void Start()
     {
         beltMesh = new Mesh();
         frameMesh = new Mesh();
 
-        vertexCalculator = GetComponent<CalculateVertexLocations>();
+        playerBuildTool = FindObjectOfType<PlayerBuildTool>();
+        template = conveyorTemplateObject.GetComponent<MeshTemplate>();
         meshDrawer = GetComponent<MeshDrawer>();
-        template = GetComponent<MeshTemplate>();
+
+
+        vertexCalculator = playerBuildTool.GetComponent<CalculateVertexLocations>();
+        vertexCalculator.SetCurrentConveyor(this);
         meshDrawer.template = template;
-        playerBuildTool = GetComponent<PlayerBuildTool>();
+
+        SetFaces();
+        Test();
+
+        
     }
 
     private void Update()
     {
-       // vertexCalculator.Calculate(playerBuildTool.GetRaycastHitPoint)
+        //vertexCalculator.Calculate(Vector3.zero, playerBuildTool.GetRaycastHitPoint());
+    }
+
+    void Test()
+    {
+        vertexCalculator.Calculate(Vector3.zero, Vector3.forward);
+    }
+
+    void SetFaces()
+    {
+        if (template.frontFace != null)
+        {
+            Debug.Log("null");
+        }
+        frontFace = template.frontFace;
+        backFace = template.backFace;
+
+        frontFaceQuads = template.frontFaceQuads;
+        backFaceQuads = template.backFaceQuads;
+        otherQuads = template.otherQuads;
     }
 }

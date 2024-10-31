@@ -5,21 +5,13 @@ using UnityEngine;
 public class MeshTemplate : MonoBehaviour
 {
     [Header("Faces")]
-    [SerializeField] GameObject frontFace;
-    [SerializeField] GameObject backFace;
+    public GameObject frontFace;
+    public GameObject backFace;
 
     [Header("Quads")]
-    [SerializeField] List<QuadVectors> frontFaceQuads = new();
-    [SerializeField] List<QuadVectors> backFaceQuads = new();
-    [SerializeField] List<QuadVectors> otherQuads = new();
+    public List<QuadVectors> frontFaceQuads = new();
+    public List<QuadVectors> backFaceQuads = new();
+    public List<QuadVectors> otherQuads = new();
 
-    private void Start()
-    {
-        DrawTest();
-    }
-
-    public void DrawTest()
-    {
-
-    }
+    
 }
