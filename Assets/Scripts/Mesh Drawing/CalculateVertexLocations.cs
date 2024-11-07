@@ -10,9 +10,35 @@ public class CalculateVertexLocations : MonoBehaviour
 
     Conveyor currentConveyor;
 
+    Transform[] frontFaceVertices;
+    Transform[] backFaceVertices;
+
     private void Start()
     {
-        buildTool = FindObjectOfType<PlayerBuildTool>();
+        
+    }
+
+    public void Initialize(PlayerBuildTool playerBuildTool)
+    {
+        buildTool = playerBuildTool;
+
+        GameObject parentObject = currentConveyor.frontFace;
+        int childCount = parentObject.transform.childCount;
+        frontFaceVertices = new Transform[childCount];
+
+        for (int i = 0; i < childCount; i++)
+        {
+            frontFaceVertices[i] = parentObject.transform.GetChild(i).GetComponent<Transform>();
+        }
+
+        parentObject = currentConveyor.backFace;
+        childCount = parentObject.transform.childCount;
+        backFaceVertices = new Transform[childCount];
+
+        for (int i = 0; i < childCount; i++)
+        {
+            backFaceVertices[i] = parentObject.transform.GetChild(i).GetComponent<Transform>();
+        }
     }
 
     public void Calculate(Vector3 startPos, Vector3 endPos)
@@ -22,8 +48,7 @@ public class CalculateVertexLocations : MonoBehaviour
 
     void SetFrontFacePositions(Vector3 translation)
     {
-        Transform[] vertices = currentConveyor.frontFace.GetComponentsInChildren<Transform>();
-        Debug.Log(vertices.Length);
+        
     }
 
     void SetBackFacePositions(Vector3 translation)

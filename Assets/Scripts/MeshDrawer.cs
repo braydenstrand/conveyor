@@ -36,9 +36,10 @@ public class MeshDrawer : MonoBehaviour
         }
     }
 
-    public void SetMesh()
+    public void SetMesh(Conveyor conveyor)
     {
-
+        SetQuad(conveyor.frontFaceQuads[0]);
+        UpdateMesh();
     }
 
     public void InitializeBuidTool()
@@ -56,12 +57,18 @@ public class MeshDrawer : MonoBehaviour
         mesh.triangles = triangles.ToArray();
         mesh.uv = uvs;
         RecalculateFlatNormals(mesh);
-
+        
     }
 
-    void SetQuad()
+    void SetQuad(QuadVectors quad)
     {
-
+        int index = vertices.Count;
+        vertices.Add(quad.bottomLeft.position);
+        vertices.Add(quad.topLeft.position);
+        vertices.Add(quad.topRight.position);
+        vertices.Add(quad.bottomRight.position);
+        SetTriangle(index, 0, 1, 2);
+        SetTriangle(index, 0, 2, 3);
     }
 
     void SetUVs()
@@ -69,9 +76,11 @@ public class MeshDrawer : MonoBehaviour
 
     }
 
-    void SetTriangle()
+    void SetTriangle(int index, int num1, int num2, int num3)
     {
-
+        triangles.Add(num1 + index);
+        triangles.Add(num2 + index);
+        triangles.Add(num3 + index);
     }
 
     void DrawTest(float length)
@@ -210,14 +219,7 @@ public class MeshDrawer : MonoBehaviour
 
         mesh.uv = UVs;
 
-        Debug.Log(mesh.uv[0]);
-        Debug.Log(mesh.uv[1]);
-        Debug.Log(mesh.uv[6]);
-        Debug.Log(mesh.uv[7]);
-        Debug.Log(mesh.vertices[0]);
-        Debug.Log(mesh.vertices[1]);
-        Debug.Log(mesh.vertices[6]);
-        Debug.Log(mesh.vertices[7]);
+        
     }
 
     void RecalculateFlatNormals(Mesh mesh)

@@ -32,14 +32,16 @@ public class Conveyor : MonoBehaviour
 
         playerBuildTool = FindObjectOfType<PlayerBuildTool>();
         template = conveyorTemplateObject.GetComponent<MeshTemplate>();
+        SetFaces();
         meshDrawer = GetComponent<MeshDrawer>();
 
 
         vertexCalculator = playerBuildTool.GetComponent<CalculateVertexLocations>();
         vertexCalculator.SetCurrentConveyor(this);
+        vertexCalculator.Initialize(playerBuildTool);
         meshDrawer.template = template;
 
-        SetFaces();
+        
         Test();
 
         
@@ -53,14 +55,12 @@ public class Conveyor : MonoBehaviour
     void Test()
     {
         vertexCalculator.Calculate(Vector3.zero, Vector3.forward);
+        meshDrawer.SetMesh(this);
     }
 
     void SetFaces()
     {
-        if (template.frontFace != null)
-        {
-            Debug.Log("null");
-        }
+        
         frontFace = template.frontFace;
         backFace = template.backFace;
 

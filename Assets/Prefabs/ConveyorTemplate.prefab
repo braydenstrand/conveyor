@@ -234,7 +234,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   frontFace: {fileID: 7920909263648822152}
   backFace: {fileID: 8381324097042101870}
-  frontFaceQuads: []
+  frontFaceQuads:
+  - bottomLeft: {fileID: 3449142911389624700}
+    topLeft: {fileID: 4170094673001572466}
+    topRight: {fileID: 2983369041715563671}
+    bottomRight: {fileID: 6874947644216812633}
   backFaceQuads: []
   otherQuads: []
 --- !u!1 &2590793119837533720
