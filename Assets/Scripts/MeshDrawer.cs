@@ -16,7 +16,7 @@ public class MeshDrawer : MonoBehaviour
     
 
     public bool draw;
-    public float length;
+     float length;
 
 
     void Start()
@@ -38,7 +38,20 @@ public class MeshDrawer : MonoBehaviour
 
     public void SetMesh(Conveyor conveyor)
     {
-        SetQuad(conveyor.frontFaceQuads[0]);
+        foreach (QuadVectors quadVectors in conveyor.frontFaceQuads)
+        {
+            SetQuad(quadVectors);
+        }
+
+        foreach (QuadVectors quadVectors in conveyor.backFaceQuads)
+        {
+            SetQuad(quadVectors);
+        }
+
+        foreach (QuadVectors quadVectors in conveyor.otherQuads)
+        {
+            SetQuad(quadVectors);
+        }
         UpdateMesh();
     }
 

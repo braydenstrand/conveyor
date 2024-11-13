@@ -239,8 +239,24 @@ MonoBehaviour:
     topLeft: {fileID: 4170094673001572466}
     topRight: {fileID: 2983369041715563671}
     bottomRight: {fileID: 6874947644216812633}
-  backFaceQuads: []
-  otherQuads: []
+  backFaceQuads:
+  - bottomLeft: {fileID: 7053739669602019976}
+    topLeft: {fileID: 3614598390599228256}
+    topRight: {fileID: 6988145293220578601}
+    bottomRight: {fileID: 1872412770974003556}
+  otherQuads:
+  - bottomLeft: {fileID: 2742279976393349359}
+    topLeft: {fileID: 6673592041840449645}
+    topRight: {fileID: 3635972770353429948}
+    bottomRight: {fileID: 6145069588821767299}
+  - bottomLeft: {fileID: 7948804712090137401}
+    topLeft: {fileID: 987870506573272552}
+    topRight: {fileID: 5766654396699525733}
+    bottomRight: {fileID: 3131431696533621381}
+  - bottomLeft: {fileID: 4734116657132185299}
+    topLeft: {fileID: 248628772584238078}
+    topRight: {fileID: 4644215490505558112}
+    bottomRight: {fileID: 7982613716363044100}
 --- !u!1 &2590793119837533720
 GameObject:
   m_ObjectHideFlags: 0
