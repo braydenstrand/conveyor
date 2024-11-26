@@ -4,10 +4,7 @@ using UnityEngine;
 
 public class MeshTemplate : MonoBehaviour
 {
-    [Header("Faces")]
-    public GameObject frontFace;
-    public GameObject backFace;
-
+    public Transform frontFacePoint;
     [Header("Quads")]
     public List<QuadVectors> frontFaceQuads = new();
     public List<QuadVectors> backFaceQuads = new();

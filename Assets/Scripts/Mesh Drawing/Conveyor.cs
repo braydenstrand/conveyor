@@ -8,12 +8,16 @@ using UnityEngine;
 
 public class Conveyor : MonoBehaviour
 {
-    [HideInInspector] public GameObject frontFace;
-    [HideInInspector] public GameObject backFace;
 
-    [HideInInspector] public List<QuadVectors> frontFaceQuads = new();
-    [HideInInspector] public List<QuadVectors> backFaceQuads = new();
-    [HideInInspector] public List<QuadVectors> otherQuads = new();
+    [HideInInspector] public List<QuadVectors> frontFace = new();
+    [HideInInspector] public List<QuadVectors> backFace = new();
+    [HideInInspector] public List<QuadVectors> otherFaces = new();
+    [HideInInspector] public Transform frontFacePoint;
+
+    [HideInInspector] public List<QuadVectors> quads = new();
+    [HideInInspector] public List<Transform> frontFaceVertices = new();
+    [HideInInspector] public List<Vector3> backFaceVertices = new();
+    [HideInInspector] public List<Vector3> otherVertices = new();
 
     Mesh beltMesh;
     Mesh frameMesh;
@@ -23,49 +27,139 @@ public class Conveyor : MonoBehaviour
     MeshTemplate template;
     PlayerBuildTool playerBuildTool;
 
-    [SerializeField] GameObject conveyorTemplateObject;
+    public GameObject conveyorTemplateObject;
+    [SerializeField] Material validBuildMaterial;
+    [SerializeField] Material invalidBuildMaterial;
+    [SerializeField] Material builtMaterial;
+    public bool draw;
 
-    private void Start()
+    private void Awake()
     {
         beltMesh = new Mesh();
         frameMesh = new Mesh();
 
         playerBuildTool = FindObjectOfType<PlayerBuildTool>();
         template = conveyorTemplateObject.GetComponent<MeshTemplate>();
-        SetFaces();
+        InitializeFaces();
         meshDrawer = GetComponent<MeshDrawer>();
 
 
-        vertexCalculator = playerBuildTool.GetComponent<CalculateVertexLocations>();
+        vertexCalculator = GetComponent<CalculateVertexLocations>();
         vertexCalculator.SetCurrentConveyor(this);
-        vertexCalculator.Initialize(playerBuildTool);
+        
         meshDrawer.template = template;
 
+        vertexCalculator.Initialize(playerBuildTool, this);
         
-        Test();
 
         
+    }
+
+    /// <summary>
+    /// Set Conveyor Material (1 = valid build, 2 = invalid build, 3 = built)
+    /// </summary>
+    public void SetMaterial(int num)
+    {
+        if (meshDrawer.meshRenderer == null)
+        {
+            Debug.Log("Test");
+        }
+        if (meshDrawer == null)
+        {
+            Debug.Log("Test");
+        }
+        switch (num)
+        {
+            case 1:
+                meshDrawer.meshRenderer.material = validBuildMaterial;
+                break;
+            case 2:
+                meshDrawer.meshRenderer.material = invalidBuildMaterial;
+                break;
+            case 3:
+                meshDrawer.meshRenderer.material = builtMaterial;
+                break;
+        }
+    }
+
+    public void Calculate()
+    {
+        vertexCalculator.Calculate();
     }
 
     private void Update()
     {
-        //vertexCalculator.Calculate(Vector3.zero, playerBuildTool.GetRaycastHitPoint());
+        if (draw)
+        {
+            meshDrawer.SetMesh(this);
+        }
+        
     }
 
     void Test()
     {
-        vertexCalculator.Calculate(Vector3.zero, Vector3.forward);
+        vertexCalculator.Calculate();
         meshDrawer.SetMesh(this);
     }
 
-    void SetFaces()
+    void InitializeFaces()
     {
-        
-        frontFace = template.frontFace;
-        backFace = template.backFace;
+        frontFace = template.frontFaceQuads;
+        backFace = template.backFaceQuads;
+        otherFaces = template.otherQuads;
+        frontFacePoint = template.frontFacePoint;
 
-        frontFaceQuads = template.frontFaceQuads;
-        backFaceQuads = template.backFaceQuads;
-        otherQuads = template.otherQuads;
+        
+        List<Transform> faces = new();
+        List<Transform> quads = new();
+        List<Transform> vertices = new();
+
+        Transform parentObject = template.gameObject.transform;
+        int childCount = parentObject.transform.childCount;
+
+        Transform currentChild;
+
+        for (int i = 0; i < childCount; i++)
+        {
+            currentChild = parentObject.GetChild(i);
+            if (currentChild.CompareTag("FrontFace"))
+            {
+                faces.Add(currentChild);
+            }
+        }
+
+        foreach (Transform face in faces)
+        {
+            childCount = face.childCount;
+            for(int i = 0; i < childCount; i++)
+            {
+                currentChild = face.GetChild(i);
+                if (currentChild.CompareTag("Quad"))
+                {
+                    quads.Add(currentChild);
+                }
+            }
+        }
+
+        foreach(Transform quad in quads)
+        {
+            childCount = quad.childCount;
+            for (int i = 0; i < childCount; i++)
+            {
+                currentChild = quad.GetChild(i);
+                if (currentChild.CompareTag("FrontVertex"))
+                {
+                    vertices.Add(currentChild);
+                }
+            }
+        }
+        frontFaceVertices.AddRange(vertices);
+
+        //Debug.Log(frontFaceVertices[0]);
+        //Debug.Log(frontFace[0].bottomLeft.position);
+        //frontFaceVertices[0] += new Vector3(1, 1, 1);
+        //frontFace[0].bottomLeft.position += new Vector3(1, 1, 1);
+        //Debug.Log(frontFaceVertices[0]);
+        //Debug.Log(frontFace[0].bottomLeft.position);
     }
 }

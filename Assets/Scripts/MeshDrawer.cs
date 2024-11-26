@@ -7,60 +7,58 @@ public class MeshDrawer : MonoBehaviour
 {
     private Mesh mesh;
     private MeshFilter meshFilter;
+    public MeshRenderer meshRenderer;
     private List<Vector3> vertices = new();
     private List<int> triangles = new();
-    private Vector2[] uvs;
+    private List<Vector2> uvs = new();
     private int conveyorEndVerticesIndex;
 
     public MeshTemplate template;
     
 
     public bool draw;
-     float length;
+
+    Vector2 uvBottomLeft = new Vector2(0, 0);
+    Vector2 uvTopLeft = new Vector2(0, 1);
+    Vector2 uvTopRight = new Vector2(1, 1);
+    Vector2 uvBottomRight = new Vector2(1, 0);
 
 
-    void Start()
+    void Awake()
     {
         mesh = new Mesh();
         meshFilter = GetComponent<MeshFilter>();
         meshFilter.mesh = mesh;
-        //InitializeBuidTool();
-        
+        meshRenderer = GetComponent<MeshRenderer>();
     }
 
     void Update()
     {
-        if (draw)
-        {
-            DrawTest(length);
-        }
+        
     }
 
     public void SetMesh(Conveyor conveyor)
     {
-        foreach (QuadVectors quadVectors in conveyor.frontFaceQuads)
+        vertices.Clear();
+        triangles.Clear();
+        uvs.Clear();
+        foreach (QuadVectors quadVectors in conveyor.frontFace)
+        {
+            SetQuad(quadVectors);
+        }
+        foreach (QuadVectors quadVectors in conveyor.backFace)
+        {
+            SetQuad(quadVectors);
+        }
+        foreach (QuadVectors quadVectors in conveyor.otherFaces)
         {
             SetQuad(quadVectors);
         }
 
-        foreach (QuadVectors quadVectors in conveyor.backFaceQuads)
-        {
-            SetQuad(quadVectors);
-        }
-
-        foreach (QuadVectors quadVectors in conveyor.otherQuads)
-        {
-            SetQuad(quadVectors);
-        }
         UpdateMesh();
     }
 
-    public void InitializeBuidTool()
-    {
-        Debug.Log("Initializing Build Tool");
-        
-        SetUVCoordinates();
-    }
+    
 
     void UpdateMesh()
     {
@@ -68,9 +66,8 @@ public class MeshDrawer : MonoBehaviour
 
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
-        mesh.uv = uvs;
+        mesh.uv = uvs.ToArray();
         RecalculateFlatNormals(mesh);
-        
     }
 
     void SetQuad(QuadVectors quad)
@@ -80,6 +77,10 @@ public class MeshDrawer : MonoBehaviour
         vertices.Add(quad.topLeft.position);
         vertices.Add(quad.topRight.position);
         vertices.Add(quad.bottomRight.position);
+        uvs.Add(uvBottomLeft);
+        uvs.Add(uvBottomRight);
+        uvs.Add(uvTopLeft);
+        uvs.Add(uvTopRight);
         SetTriangle(index, 0, 1, 2);
         SetTriangle(index, 0, 2, 3);
     }
@@ -98,6 +99,7 @@ public class MeshDrawer : MonoBehaviour
 
     void DrawTest(float length)
     {
+        //undo comments before using
         vertices.Clear();
         triangles.Clear();
         List<Vector3> newVertices = new();
@@ -189,7 +191,7 @@ public class MeshDrawer : MonoBehaviour
         Vector2 topRight = new(1, 1);
         Vector2 bottomRight = new(1, 0);
 
-        uvs = new Vector2[vertices.Count];
+        //uvs = new Vector2[vertices.Count];
 
         uvs[0] = bottomLeft;
         uvs[1] = topLeft;
@@ -221,19 +223,7 @@ public class MeshDrawer : MonoBehaviour
 
     }
 
-    void SetUVCoordinates()
-    {
-        Vector2[] UVs = new Vector2[mesh.vertices.Length];
-
-        UVs[0] = new Vector2(0, 0);
-        UVs[1] = new Vector2(0, 1);
-        UVs[6] = new Vector2(1, 1);
-        UVs[7] = new Vector2(1, 0);
-
-        mesh.uv = UVs;
-
-        
-    }
+    
 
     void RecalculateFlatNormals(Mesh mesh)
     {

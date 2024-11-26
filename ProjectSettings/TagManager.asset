@@ -5,6 +5,12 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
+  - FrontFace
+  - BackFace
+  - OtherFace
+  - Quad
+  - FrontVertex
+  - BackVertex
   layers:
   - Default
   - TransparentFX
