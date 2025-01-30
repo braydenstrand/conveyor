@@ -14,14 +14,17 @@ public class MeshDrawer : MonoBehaviour
     private int conveyorEndVerticesIndex;
 
     public MeshTemplate template;
+
+    public PlayerBuildTool buildTool;
     
 
-    public bool draw;
+    private bool draw;
 
     Vector2 uvBottomLeft = new Vector2(0, 0);
     Vector2 uvTopLeft = new Vector2(0, 1);
     Vector2 uvTopRight = new Vector2(1, 1);
     Vector2 uvBottomRight = new Vector2(1, 0);
+
 
 
     void Awake()
@@ -39,23 +42,31 @@ public class MeshDrawer : MonoBehaviour
 
     public void SetMesh(Conveyor conveyor)
     {
+
         vertices.Clear();
         triangles.Clear();
         uvs.Clear();
+
+
+
         foreach (QuadVectors quadVectors in conveyor.frontFace)
         {
+            //quadVectors.OffsetEachDraw();
             SetQuad(quadVectors);
         }
         foreach (QuadVectors quadVectors in conveyor.backFace)
         {
+            //quadVectors.OffsetEachDraw();
             SetQuad(quadVectors);
         }
         foreach (QuadVectors quadVectors in conveyor.otherFaces)
         {
+            //quadVectors.OffsetEachDraw();
             SetQuad(quadVectors);
         }
 
         UpdateMesh();
+
     }
 
     
@@ -73,16 +84,20 @@ public class MeshDrawer : MonoBehaviour
     void SetQuad(QuadVectors quad)
     {
         int index = vertices.Count;
-        vertices.Add(quad.bottomLeft.position);
-        vertices.Add(quad.topLeft.position);
-        vertices.Add(quad.topRight.position);
-        vertices.Add(quad.bottomRight.position);
+        
+
+        vertices.Add(transform.InverseTransformPoint(quad.bottomLeft.position));
+        vertices.Add(transform.InverseTransformPoint(quad.topLeft.position));
+        vertices.Add(transform.InverseTransformPoint(quad.topRight.position));
+        vertices.Add(transform.InverseTransformPoint(quad.bottomRight.position));
+
         uvs.Add(uvBottomLeft);
         uvs.Add(uvBottomRight);
         uvs.Add(uvTopLeft);
         uvs.Add(uvTopRight);
         SetTriangle(index, 0, 1, 2);
         SetTriangle(index, 0, 2, 3);
+
     }
 
     void SetUVs()
@@ -96,6 +111,8 @@ public class MeshDrawer : MonoBehaviour
         triangles.Add(num2 + index);
         triangles.Add(num3 + index);
     }
+
+    
 
     void DrawTest(float length)
     {

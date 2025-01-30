@@ -16,17 +16,30 @@ public class CalculateVertexLocations : MonoBehaviour
         
     }
 
-    public void Calculate()
+    public void TestCalculate()
     {
         RaycastHit raycastHit = buildTool.GetRaycast();
-        Vector3 offset = raycastHit.point - currentConveyor.frontFacePoint.position;
-        Debug.Log(offset);
-        for (int i = 0; i < currentConveyor.frontFaceVertices.Count; i++)
+        Vector3 offset = raycastHit.point - currentConveyor.backFacePoint.position;
+        currentConveyor.backFaceVertices[0].position += offset;
+        currentConveyor.backFacePoint.position += offset;
+
+        Debug.Log(currentConveyor.backFacePoint.position);
+        Debug.Log(raycastHit.point);
+        Debug.Log(currentConveyor.backFaceVertices[0].position);
+    }
+
+    public void Calculate(Vector3 endPoint)
+    {
+        Vector3 offset = endPoint - currentConveyor.backFacePoint.position;
+        
+        for (int i = 0; i < currentConveyor.backFaceVertices.Count; i++)
         {
-            currentConveyor.frontFaceVertices[i].position += offset;
+            currentConveyor.backFaceVertices[i].position += offset;
             //Debug.Log(currentConveyor.frontFaceVertices[i]);
         }
-        currentConveyor.frontFacePoint.position += offset;
+        currentConveyor.backFacePoint.position += offset;
+
+        
     }
 
     public void Initialize(PlayerBuildTool playerBuildTool, Conveyor conveyor)

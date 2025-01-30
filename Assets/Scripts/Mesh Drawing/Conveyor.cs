@@ -12,12 +12,16 @@ public class Conveyor : MonoBehaviour
     [HideInInspector] public List<QuadVectors> frontFace = new();
     [HideInInspector] public List<QuadVectors> backFace = new();
     [HideInInspector] public List<QuadVectors> otherFaces = new();
-    [HideInInspector] public Transform frontFacePoint;
+    [HideInInspector] public Transform backFacePoint;
+     public SnapPoint frontSnapPoint;
+     public SnapPoint backSnapPoint;
 
     [HideInInspector] public List<QuadVectors> quads = new();
     [HideInInspector] public List<Transform> frontFaceVertices = new();
-    [HideInInspector] public List<Vector3> backFaceVertices = new();
+    [HideInInspector] public List<Transform> backFaceVertices = new();
     [HideInInspector] public List<Vector3> otherVertices = new();
+
+    [SerializeField] public float conveyorHeight;
 
     Mesh beltMesh;
     Mesh frameMesh;
@@ -27,7 +31,8 @@ public class Conveyor : MonoBehaviour
     MeshTemplate template;
     PlayerBuildTool playerBuildTool;
 
-    public GameObject conveyorTemplateObject;
+    public GameObject conveyorTemplatePrefab;
+    public GameObject templatePrefabInstance;
     [SerializeField] Material validBuildMaterial;
     [SerializeField] Material invalidBuildMaterial;
     [SerializeField] Material builtMaterial;
@@ -39,7 +44,8 @@ public class Conveyor : MonoBehaviour
         frameMesh = new Mesh();
 
         playerBuildTool = FindObjectOfType<PlayerBuildTool>();
-        template = conveyorTemplateObject.GetComponent<MeshTemplate>();
+        templatePrefabInstance = Instantiate(conveyorTemplatePrefab, transform.position, Quaternion.identity, transform);
+        template = templatePrefabInstance.GetComponent<MeshTemplate>();
         InitializeFaces();
         meshDrawer = GetComponent<MeshDrawer>();
 
@@ -50,9 +56,15 @@ public class Conveyor : MonoBehaviour
         meshDrawer.template = template;
 
         vertexCalculator.Initialize(playerBuildTool, this);
-        
+        meshDrawer.buildTool = playerBuildTool;
 
         
+    }
+
+    private void OnEnable()
+    {
+        backSnapPoint.DisableCollider();
+        frontSnapPoint.DisableCollider();
     }
 
     /// <summary>
@@ -82,34 +94,58 @@ public class Conveyor : MonoBehaviour
         }
     }
 
-    public void Calculate()
+    public void Calculate(Vector3 endPoint)
     {
-        vertexCalculator.Calculate();
+        vertexCalculator.Calculate(endPoint);
     }
+
+    public void StopDrawing()
+    {
+        draw = false;
+        backSnapPoint.EnableCollider();
+        frontSnapPoint.EnableCollider();
+    }
+
+    public void TestCalculate() { vertexCalculator.TestCalculate(); }
 
     private void Update()
     {
         if (draw)
         {
             meshDrawer.SetMesh(this);
+            
         }
+
         
+        backSnapPoint.transform.LookAt(frontSnapPoint.transform);
+        //backSnapPoint.transform.Rotate(Vector3.up * Time.deltaTime);
     }
 
-    void Test()
-    {
-        vertexCalculator.Calculate();
-        meshDrawer.SetMesh(this);
-    }
+    
 
     void InitializeFaces()
     {
         frontFace = template.frontFaceQuads;
         backFace = template.backFaceQuads;
         otherFaces = template.otherQuads;
-        frontFacePoint = template.frontFacePoint;
+        backFacePoint = template.backFacePoint;
+        backSnapPoint = template.backSnapPoint;
+        frontSnapPoint = template.frontSnapPoint;
 
-        
+        foreach (QuadVectors quad in frontFace)
+        {
+            quad.Initialize();
+        }
+        foreach (QuadVectors quad in backFace)
+        {
+            quad.Initialize();
+        }
+        foreach (QuadVectors quad in otherFaces)
+        {
+            quad.Initialize();
+        }
+
+
         List<Transform> faces = new();
         List<Transform> quads = new();
         List<Transform> vertices = new();
@@ -122,7 +158,7 @@ public class Conveyor : MonoBehaviour
         for (int i = 0; i < childCount; i++)
         {
             currentChild = parentObject.GetChild(i);
-            if (currentChild.CompareTag("FrontFace"))
+            if (currentChild.CompareTag("BackFace") || currentChild.CompareTag("OtherFace"))
             {
                 faces.Add(currentChild);
             }
@@ -147,13 +183,13 @@ public class Conveyor : MonoBehaviour
             for (int i = 0; i < childCount; i++)
             {
                 currentChild = quad.GetChild(i);
-                if (currentChild.CompareTag("FrontVertex"))
+                if (currentChild.CompareTag("BackVertex"))
                 {
                     vertices.Add(currentChild);
                 }
             }
         }
-        frontFaceVertices.AddRange(vertices);
+        backFaceVertices.AddRange(vertices);
 
         //Debug.Log(frontFaceVertices[0]);
         //Debug.Log(frontFace[0].bottomLeft.position);

@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class MeshTemplate : MonoBehaviour
 {
-    public Transform frontFacePoint;
+    public Transform backFacePoint;
+    public SnapPoint frontSnapPoint;
+    public SnapPoint backSnapPoint;
     [Header("Quads")]
     public List<QuadVectors> frontFaceQuads = new();
     public List<QuadVectors> backFaceQuads = new();

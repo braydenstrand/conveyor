@@ -102,13 +102,17 @@ MonoBehaviour:
   frontFace: []
   backFace: []
   otherFaces: []
-  frontFacePoint: {fileID: 0}
+  backFacePoint: {fileID: 0}
+  frontSnapPoint: {fileID: 0}
+  backSnapPoint: {fileID: 0}
   quads: []
   frontFaceVertices: []
   backFaceVertices: []
   otherVertices: []
-  conveyorTemplateObject: {fileID: 2391044041212013974, guid: 958ec2002abb77945be3ccbc04b8d776,
+  conveyorHeight: 1.5
+  conveyorTemplatePrefab: {fileID: 2391044041212013974, guid: 958ec2002abb77945be3ccbc04b8d776,
     type: 3}
+  templatePrefabInstance: {fileID: 0}
   validBuildMaterial: {fileID: 2100000, guid: b03932e680f682b4b8185c381d735e9a, type: 2}
   invalidBuildMaterial: {fileID: 2100000, guid: 7adb4c0921ab28b47bdf85af59531ca0,
     type: 2}
@@ -128,7 +132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshRenderer: {fileID: 0}
   template: {fileID: 0}
-  draw: 0
+  buildTool: {fileID: 0}
 --- !u!114 &1876282168745529579
 MonoBehaviour:
   m_ObjectHideFlags: 0

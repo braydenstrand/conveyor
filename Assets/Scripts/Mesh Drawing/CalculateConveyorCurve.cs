@@ -4,29 +4,48 @@ using UnityEngine;
 
 public class CalculateConveyorCurve : MonoBehaviour
 {
+    [SerializeField] float width;
     [SerializeField] float radius;
-    [SerializeField] float numberOfCubes;
+    [SerializeField] float numberOfPoints;
+    GameObject[] points;
+    GameObject[] side1Points;
+    GameObject[] side2Points;
+    GameObject startingPoint;
     [SerializeField] GameObject prefab;
-    [SerializeField] Vector3 bTest;
-    [SerializeField] Vector3 cTest;
+    [SerializeField] Transform aTest;
+    [SerializeField] Transform bTest;
+    [SerializeField] Transform cTest;
+    [SerializeField] Transform bTestTwo;
+    [SerializeField] Transform cTestTwo;
     [SerializeField] bool useTestPoints;
-    public bool startCubePlaced;
-    Vector3 startCubeLocation;
+    public bool startPointPlaced;
+    Vector3 startPointLocation;
     Vector3 a;
     Vector3 b;
     Vector3 c;
     Vector3 d;
     Vector3 e;
     Vector3 o;
+    GameObject oObject;
+    GameObject aObject;
+    GameObject cObject;
     float angleOBC;
     float angleOBCInRads;
+    float totalRotation;
 
     private void Start()
     {
+        Initialize();
         if (useTestPoints)
         {
-            PlaceFirstCube(bTest);
-            Calculate(cTest);
+            PlaceFirstPoint(bTest.transform.position);
+            Calculate(cTest.transform.position);
+            //PlaceFirstPoint(bTestTwo.transform.position);
+            //Calculate(cTestTwo.transform.position);
+        }
+        else
+        {
+            PlaceFirstPoint(bTest.transform.position);
         }
     }
 
@@ -34,33 +53,79 @@ public class CalculateConveyorCurve : MonoBehaviour
     {
         if (useTestPoints)
         {
-            PlaceFirstCube(bTest);
-            Calculate(cTest);
+            PlaceFirstPoint(bTest.transform.position);
+            Calculate(cTest.transform.position);
+            //PlaceFirstPoint(bTestTwo.transform.position);
+            //Calculate(cTestTwo.transform.position);
+        }
+        else
+        {
+            PlaceFirstPoint(bTest.transform.position);
         }
     }
 
-    public void Calculate(Vector3 endCubeLocation)
+    public void Initialize()
+    {
+        side1Points = new GameObject[(int)numberOfPoints];
+        side2Points = new GameObject[(int)numberOfPoints];
+        points = new GameObject[(int)numberOfPoints];
+        startingPoint = Instantiate(prefab, aTest.position, aTest.rotation);
+        for (int i = 0; i < points.Length; i++)
+        {
+            points[i] = Instantiate(prefab, aTest.position, aTest.rotation);
+        }
+        for (int i = 0; i < side1Points.Length; i++)
+        {
+            side1Points[i] = Instantiate(prefab, aTest.position, aTest.rotation);
+        }
+
+        for (int i = 0; i < side2Points.Length; i++)
+        {
+            side2Points[i] = Instantiate(prefab, aTest.position, aTest.rotation);
+        }
+        oObject = Instantiate(prefab);
+        aObject = Instantiate(prefab);
+        cObject = Instantiate(prefab);
+    }
+
+    public void Calculate(Vector3 endPointLocation)
     {
         Debug.Log("Calculating");
 
-        CalculateCenter(endCubeLocation);
+        CalculateCenter(endPointLocation);
 
         CalculateTangents();
 
-        GameObject[] points = new GameObject[(int)numberOfCubes];
+        
 
-        for (int i = 0; i < numberOfCubes; i++)
+        for (int i = 0; i < numberOfPoints; i++)
         {
-            Debug.Log((1 / numberOfCubes) * i);
-            GameObject point = PlaceCube(FindPointOnArc(o, d, e, (1 / numberOfCubes) * i));
-            points[i] = point;
+            points[i].transform.rotation = aTest.transform.rotation;
+            Debug.Log((1 / numberOfPoints) * i);
+            points[i].transform.position = FindPointOnArc(o, d, e, (1 / numberOfPoints) * i);
+            points[i].transform.Rotate(new Vector3(0, (totalRotation / (numberOfPoints - 1)) * i, 0));
+            //side1Points[i].transform.SetLocalPositionAndRotation(new Vector3(points[i].transform.position.x - width / 2, points[i].transform.position.y, points[i].transform.position.z), points[i].transform.rotation);
+            //side2Points[i].transform.SetLocalPositionAndRotation(new Vector3(points[i].transform.position.x + width / 2, points[i].transform.position.y, points[i].transform.position.z), points[i].transform.rotation);
+
+
+            side1Points[i].transform.SetLocalPositionAndRotation(points[i].transform.position, points[i].transform.rotation);
+            side2Points[i].transform.SetLocalPositionAndRotation(points[i].transform.position, points[i].transform.rotation);
+
+            side1Points[i].transform.Translate(Vector3.left * (width / 2));
+            side2Points[i].transform.Translate(Vector3.right * (width / 2));
         }
 
         for (int i = 1; i < points.Length; i++) 
         {
             Debug.DrawLine(points[i].transform.position, points[i - 1].transform.position, Color.green);
+            Debug.DrawLine(side1Points[i].transform.position, side1Points[i - 1].transform.position, Color.green);
+            Debug.DrawLine(side2Points[i].transform.position, side2Points[i - 1].transform.position, Color.green);
+            
             Debug.Log("test");
         }
+
+        Debug.DrawLine(points[(int)numberOfPoints - 1].transform.position, side1Points[(int)numberOfPoints - 1].transform.position);
+        Debug.DrawLine(points[(int)numberOfPoints - 1].transform.position, side2Points[(int)numberOfPoints - 1].transform.position);
 
         Debug.DrawLine(a, b, Color.red);
         Debug.DrawLine(c, b, Color.red);
@@ -100,14 +165,14 @@ public class CalculateConveyorCurve : MonoBehaviour
         //PlaceCube(d);
     }
 
-    void CalculateCenter(Vector3 endCubeLocation)
+    void CalculateCenter(Vector3 endPointLocation)
     {
         // Set A B C
-        a = startCubeLocation + new Vector3(0, 0, -10f);
-        PlaceCube(a);
-        b = startCubeLocation;
-        c = endCubeLocation;
-        PlaceCube(c);
+        a = startPointLocation + new Vector3(0, 0, -10f);
+        aObject.transform.position = a;
+        b = startPointLocation;
+        c = endPointLocation;
+        cObject.transform.position = c;
 
         // Calculate angle ABC
         Vector3 ab = a - b;
@@ -116,6 +181,7 @@ public class CalculateConveyorCurve : MonoBehaviour
         Debug.Log("Line BC: " + bc);
         float angleABC = Vector3.Angle(ab, bc);
         Debug.Log("Angle ABC: " + angleABC);
+        totalRotation = angleABC - 180;
 
         // Calculate angle OBC (o is center of circle)
         angleOBC = angleABC / 2;
@@ -134,19 +200,19 @@ public class CalculateConveyorCurve : MonoBehaviour
         // Calculate center of circle
         o = b + directionToCenter.normalized * lineOBLength;
         Debug.Log("Center of circle: " + o);
-        PlaceCube(o);
+        oObject.transform.position = o;
     }
 
-    public GameObject PlaceCube(Vector3 location)
+    public GameObject PlacePoint(Vector3 location)
     {
         GameObject cube = Instantiate(prefab, location, Quaternion.identity);
         return cube;
     }
 
-    public void PlaceFirstCube(Vector3 location)
+    public void PlaceFirstPoint(Vector3 location)
     {
-        Instantiate(prefab, location, Quaternion.identity);
-        startCubeLocation = location;
-        startCubePlaced = true;
+        startingPoint.transform.position = location;
+        startPointLocation = location;
+        startPointPlaced = true;
     }
 }
