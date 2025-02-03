@@ -59,6 +59,11 @@ public class PlayerInput : MonoBehaviour
         
     }
 
+    public float GetScrollWheel()
+    {
+        return Input.GetAxis("Mouse ScrollWheel");
+    }
+
     public Vector2 GetPlayerRotation()
     {
         if (!isPlayerDead)

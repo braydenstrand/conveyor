@@ -121,7 +121,6 @@ public class CalculateConveyorCurve : MonoBehaviour
             Debug.DrawLine(side1Points[i].transform.position, side1Points[i - 1].transform.position, Color.green);
             Debug.DrawLine(side2Points[i].transform.position, side2Points[i - 1].transform.position, Color.green);
             
-            Debug.Log("test");
         }
 
         Debug.DrawLine(points[(int)numberOfPoints - 1].transform.position, side1Points[(int)numberOfPoints - 1].transform.position);
@@ -195,6 +194,7 @@ public class CalculateConveyorCurve : MonoBehaviour
         // Calculate direction to center of circle
         Quaternion rotation = Quaternion.AngleAxis(-angleOBC, Vector3.up);
         Vector3 directionToCenter = rotation * bc;
+
         Debug.Log("Direction to Center: " + directionToCenter);
 
         // Calculate center of circle

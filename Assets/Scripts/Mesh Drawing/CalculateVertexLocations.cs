@@ -28,16 +28,24 @@ public class CalculateVertexLocations : MonoBehaviour
         Debug.Log(currentConveyor.backFaceVertices[0].position);
     }
 
-    public void Calculate(Vector3 endPoint)
+    public void Calculate(Transform startPoint, Transform endPoint)
     {
-        Vector3 offset = endPoint - currentConveyor.backFacePoint.position;
-        
-        for (int i = 0; i < currentConveyor.backFaceVertices.Count; i++)
+        Vector3 offset = endPoint.position - currentConveyor.backFacePoint.position;
+
+        //Debug.Log(startPoint.InverseTransformDirection(startPoint.eulerAngles));
+        //Debug.Log(endPoint.InverseTransformDirection(endPoint.eulerAngles));
+
+        if (Mathf.Abs( startPoint.InverseTransformDirection(startPoint.eulerAngles).y - endPoint.InverseTransformDirection(endPoint.eulerAngles).y) < 2)
         {
-            currentConveyor.backFaceVertices[i].position += offset;
-            //Debug.Log(currentConveyor.frontFaceVertices[i]);
+            for (int i = 0; i < currentConveyor.backFaceVertices.Count; i++)
+            {
+                currentConveyor.backFaceVertices[i].position += offset;
+                //Debug.Log(currentConveyor.frontFaceVertices[i]);
+            }
+            currentConveyor.backFacePoint.position += offset;
         }
-        currentConveyor.backFacePoint.position += offset;
+        
+        
 
         
     }

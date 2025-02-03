@@ -94,9 +94,9 @@ public class Conveyor : MonoBehaviour
         }
     }
 
-    public void Calculate(Vector3 endPoint)
+    public void Calculate(Transform startPoint, Transform endPoint)
     {
-        vertexCalculator.Calculate(endPoint);
+        vertexCalculator.Calculate(startPoint, endPoint);
     }
 
     public void StopDrawing()

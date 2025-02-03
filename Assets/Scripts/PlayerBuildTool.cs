@@ -20,6 +20,9 @@ public class PlayerBuildTool : MonoBehaviour
     [SerializeField] ObjectPool conveyorPool;
     [SerializeField] GameObject snapPoint;
     Conveyor currentConveyor;
+    [SerializeField] Transform hitPointTransform;
+    [SerializeField] float hitPointRotationSpeed;
+    float hitPointRotationOffset;
 
     bool startPointPlaced;
     CalculateConveyorCurve curveCalc;
@@ -31,12 +34,16 @@ public class PlayerBuildTool : MonoBehaviour
     void Start()
     {
         curveCalc = GetComponent<CalculateConveyorCurve>();
+        hitPointRotationOffset = 0;
     }
 
     void Update()
     {
 
         hit = GetRaycast();
+        hitPointTransform.position = hit.point;
+        hitPointTransform.Rotate(hitPointRotationSpeed * Time.deltaTime * new Vector3(0, PlayerInput.Instance.GetScrollWheel(), 0));
+        hitPointRotationOffset += hitPointRotationSpeed * Time.deltaTime * PlayerInput.Instance.GetScrollWheel();
         snapHit = GetSnapRaycast();
         //if (isHitting)
         //{
@@ -52,15 +59,12 @@ public class PlayerBuildTool : MonoBehaviour
             started = true;
             active = true;
             startPointPlaced = false;
+            hitPointRotationOffset = 0;
         }
 
         if (active)
         {
-            //if (PlayerInput.Instance.GetInteractKey())
-            //{
-            //    currentConveyor.frontFaceVertices[0].position += Vector3.forward;
-            //    Debug.Log(currentConveyor.frontFaceVertices[0].position);
-            //}
+            hitPointTransform.eulerAngles = new Vector3(0, currentConveyor.backFacePoint.eulerAngles.y + hitPointRotationOffset, 0);
 
             if (isHitting && !startPointPlaced)
             {
@@ -71,7 +75,7 @@ public class PlayerBuildTool : MonoBehaviour
                 }
                 else
                 {
-                    currentConveyor.gameObject.transform.position = snapHit.collider.transform.position + Vector3.down * (currentConveyor.conveyorHeight / 2);
+                    currentConveyor.gameObject.transform.position = snapHit.collider.transform.position;
                     currentConveyor.gameObject.transform.rotation = snapHit.collider.transform.rotation;
                     currentConveyor.gameObject.transform.Rotate(new Vector3(0, 180, 0));
                     //hit.collider.transform.Rotate(Vector3.up * Time.deltaTime);
@@ -100,12 +104,12 @@ public class PlayerBuildTool : MonoBehaviour
                 if (!isHittingSnapPoint)
                 {
                     currentConveyor.transform.LookAt(hit.point);
-                    currentConveyor.Calculate(hit.point);
+                    currentConveyor.Calculate(currentConveyor.transform, hitPointTransform);
                 }
                 else
                 {
                     currentConveyor.transform.LookAt(new Vector3(snapHit.collider.transform.position.x, 0, snapHit.collider.transform.position.z));
-                    currentConveyor.Calculate(new Vector3(snapHit.collider.transform.position.x, 0, snapHit.collider.transform.position.z));
+                    currentConveyor.Calculate(currentConveyor.transform,  snapHit.transform);
                 }
                 currentConveyor.SetMaterial(1);
 
